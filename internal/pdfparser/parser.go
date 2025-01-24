@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -31,47 +30,46 @@ func ExtractPDFText(pdfPath string) (string, error) {
 
 	log.Printf("Extracting text from %s\n", pdfPath)
 
-	// Extract text content from the PDF file using pdfcpu
+	// Create temporary directory for content extraction
+	tempDir, err := os.MkdirTemp("", "pdfcpu_extract_*")
+	if err != nil {
+		return "", fmt.Errorf("failed to create temp directory: %w", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	// Extract text using pdfcpu
 	conf := model.NewDefaultConfiguration()
-	
-	// Open the PDF file as io.ReadSeeker
-	var reader io.ReadSeeker
-	file, err := os.Open(pdfPath)
-	if err != nil {
-		return "", fmt.Errorf("failed to open PDF file: %w", err)
-	}
-	defer file.Close()
-	reader = file
-	
-	// Create a temporary file for output
-	tmpFile, err := os.CreateTemp("", "menu-*.txt")
-	if err != nil {
-		return "", fmt.Errorf("failed to create temp file: %w", err)
-	}
-	defer os.Remove(tmpFile.Name())
-	defer tmpFile.Close()
-	
-	// Extract content to temp file
-	if err := api.ExtractContent(reader, pdfPath, tmpFile.Name(), nil, conf); err != nil {
+	// Extract content from PDF using pdfcpu API
+	if err := api.ExtractContentFile(pdfPath, tempDir, []string{"1-"}, conf); err != nil {
 		return "", fmt.Errorf("failed to extract text from PDF: %w", err)
 	}
-	
-	// Read the extracted content
-	content, err := os.ReadFile(tmpFile.Name())
-	if err != nil {
-		return "", fmt.Errorf("failed to read extracted content: %w", err)
-	}
-	
-	text := string(content)
 
-	if len(text) == 0 {
+	// Find and combine extracted content files
+	files, err := os.ReadDir(tempDir)
+	if err != nil {
+		return "", fmt.Errorf("failed to read temp directory: %w", err)
+	}
+
+	var content strings.Builder
+	for _, file := range files {
+		if strings.Contains(file.Name(), "_Content_page_") {
+			data, err := os.ReadFile(filepath.Join(tempDir, file.Name()))
+			if err != nil {
+				return "", fmt.Errorf("failed to read extracted content: %w", err)
+			}
+			content.Write(data)
+			content.WriteString("\n")
+		}
+	}
+
+	result := content.String()
+	if result == "" {
 		return "", fmt.Errorf("no text content extracted from PDF")
 	}
 	
 	log.Printf("Successfully extracted text from PDF\n")
-	log.Printf("Extracted text sample (first 500 chars):\n%s\n", text[:min(500, len(text))])
-	
-	return text, nil
+	log.Printf("Extracted text sample (first 500 chars):\n%s\n", result[:min(500, len(result))])
+	return result, nil
 }
 
 // ParsePDFMenuWithOpenAI uses OpenAI to extract structured menu data from PDF text

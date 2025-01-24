@@ -9,12 +9,33 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/grow-assistant/menu-creator/internal/config"
 	"github.com/grow-assistant/menu-creator/internal/pdfparser"
 	"github.com/grow-assistant/menu-creator/internal/seeding"
 )
 
+func verifyOpenAIConfig() error {
+	cfg, err := config.GetOpenAIConfig()
+	if err != nil {
+		return fmt.Errorf("failed to get OpenAI config: %w", err)
+	}
+
+	if cfg.APIKey == "" {
+		return fmt.Errorf("OpenAI API key is not set")
+	}
+
+	log.Printf("OpenAI configuration verified successfully")
+	log.Printf("Using model: %s", cfg.Model)
+	return nil
+}
+
 func main() {
 	log.Println("Menu Creator - PDF to Go Seed File Generator (OpenAI-powered)")
+	
+	// Verify OpenAI configuration before proceeding
+	if err := verifyOpenAIConfig(); err != nil {
+		log.Fatalf("OpenAI configuration error: %v", err)
+	}
 	
 	if len(os.Args) < 2 {
 		log.Fatal("Usage: menu-creator <pdf-file>")
