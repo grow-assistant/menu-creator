@@ -59,8 +59,8 @@ var DinnerMenu = &models.Menu{
     Name: "Evening Dining",
     Items: []models.MenuItem{
         {
-            Name:        "Grilled Salmon",
-            Description: "Fresh Atlantic salmon...",
+            Name:        "Example Item",
+            Description: "Example item description...",
             Price:       24.99,
             Category:    "Entrees",
         },

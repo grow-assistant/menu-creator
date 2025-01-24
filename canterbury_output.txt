@@ -1,0 +1,7 @@
+2025/01/24 14:56:03 Menu Creator - PDF to Go Seed File Generator (OpenAI-powered)
+2025/01/24 14:56:03 Parsing PDF file: /home/ubuntu/menu-creator/testdata/menus/Canterbury.pdf
+2025/01/24 14:56:03 Using OpenAI for menu extraction...
+2025/01/24 14:56:03 Extracting text from /home/ubuntu/menu-creator/testdata/menus/Canterbury.pdf
+2025/01/24 14:56:03 OpenAI parsing failed, falling back to direct parsing: failed to extract text from PDF: failed to extract text from PDF: open /home/ubuntu/menu-creator/testdata/menus/Canterbury.pdf/content.txt_Content_page_1.txt: not a directory
+2025/01/24 14:56:03 Extracting text from /home/ubuntu/menu-creator/testdata/menus/Canterbury.pdf
+2025/01/24 14:56:03 Failed to parse PDF: failed to extract text from PDF: failed to extract text from PDF: open /home/ubuntu/menu-creator/testdata/menus/Canterbury.pdf/content.txt_Content_page_1.txt: not a directory
